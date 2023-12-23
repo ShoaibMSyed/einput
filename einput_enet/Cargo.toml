@@ -1,0 +1,11 @@
+[package]
+name = "einput_enet"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+einput_components = { path = "../einput_components", default-features = false, features = ["device"] }
+einput_device = { path = "../einput_device", default-features = false }
+log = "0.4.20"

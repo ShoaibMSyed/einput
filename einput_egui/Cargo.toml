@@ -1,0 +1,12 @@
+[package]
+name = "einput_egui"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bevy = "0.12.1"
+bevy_egui = "0.24.0"
+einput_components = { path = "../einput_components" }
+einput_core = { path = "../einput_core" }

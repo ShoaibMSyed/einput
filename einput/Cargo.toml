@@ -1,0 +1,17 @@
+[package]
+name = "einput"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bevy = "0.12.1"
+einput_components = { path = "../einput_components" }
+einput_core = { path = "../einput_core" }
+einput_driver_enet = { path = "../einput_driver_enet" }
+einput_driver_powera = { path = "../einput_driver_powera" }
+einput_driver_usb = { path = "../einput_driver_usb" }
+einput_egui = { path = "../einput_egui" }
+einput_output_enet = { path = "../einput_output_enet" }
+einput_output_uinput = { path = "../einput_output_uinput" }

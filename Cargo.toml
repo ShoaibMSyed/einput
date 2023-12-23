@@ -1,0 +1,29 @@
+[workspace]
+resolver = "2"
+members = [
+    "einput",
+
+    "einput_driver_enet",
+    "einput_driver_usb",
+    "einput_driver_powera",
+
+    "einput_output_enet",
+    "einput_output_uinput",
+
+    "einput_egui",
+    
+    "einput_core",
+
+    "einput_enet",
+
+    "einput_components",
+    "einput_device",
+    "einput_util",
+]
+default-members = ["einput"]
+
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3

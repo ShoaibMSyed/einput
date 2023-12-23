@@ -1,0 +1,15 @@
+[package]
+name = "einput_driver_powera"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.76"
+bevy = "0.12.1"
+einput_components = { path = "../einput_components" }
+einput_core = { path = "../einput_core" }
+einput_driver_usb = { path = "../einput_driver_usb" }
+einput_util = { path = "../einput_util" }
+rusb = "0.9.3"

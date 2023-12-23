@@ -1,0 +1,13 @@
+[package]
+name = "einput_driver_enet"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.76"
+bevy = "0.12.1"
+einput_core = { path = "../einput_core" }
+einput_device = { path = "../einput_device" }
+einput_enet = { path = "../einput_enet" }

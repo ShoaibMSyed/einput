@@ -1,0 +1,16 @@
+[package]
+name = "einput_output_uinput"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.76"
+bevy = "0.12.1"
+einput_components = { path = "../einput_components" }
+einput_core = { path = "../einput_core" }
+einput_egui = { path = "../einput_egui" }
+einput_util = { path = "../einput_util" }
+input-linux = "0.6.0"
+udev = "0.8.0"

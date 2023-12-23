@@ -1,0 +1,29 @@
+[package]
+name = "einput_components"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bytemuck = { version = "1.14.0", features = ["derive"] }
+einput_device = { path = "../einput_device", default-features = false, optional = true }
+einput_util = { path = "../einput_util" }
+serde = { version = "1.0.193", features = ["derive"], default-features = false, optional = true }
+typetag = { version = "0.2.14", optional = true }
+
+[features]
+default = ["info", "config"]
+
+std = []
+
+einput_device = ["dep:einput_device"]
+serde = ["dep:serde"]
+typetag = ["dep:typetag", "std"]
+
+device = ["einput_device"]
+info = ["std", "device", "einput_device/info"]
+config = ["std", "device", "einput_device/config", "serde", "typetag"]
+
+
+
