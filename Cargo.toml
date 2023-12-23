@@ -22,6 +22,9 @@ members = [
 ]
 default-members = ["einput"]
 
+[workspace.package]
+license = "MIT"
+
 [profile.dev]
 opt-level = 1
 
