@@ -1,6 +1,6 @@
 use std::{sync::{Arc, Mutex}, time::Duration};
 
-use einput_core::{device::Device, output::Output, EInput};
+use einput_core::{device::Device, output::Output};
 use log::info;
 
 mod output;
@@ -18,9 +18,9 @@ pub struct XboxOutput {
 }
 
 impl XboxOutput {
-    pub fn new(einput: EInput) -> Self {
+    pub fn new() -> Self {
         let devices = Devices::default();
-        start(einput, devices.clone());
+        start(devices.clone());
 
         Self {
             devices,
@@ -45,24 +45,22 @@ impl Output for XboxOutput {
     }
 }
 
-fn start(einput: EInput, devices: Devices) {
-    std::thread::spawn(move || run(einput, devices));
+fn start(devices: Devices) {
+    std::thread::spawn(move || run(devices));
 }
 
-fn run(einput: EInput, devices: Devices) {
+fn run(devices: Devices) {
     loop {
         devices.lock().unwrap().changed = true;
         
-        let einput = einput.clone();
         let devices = devices.clone();
 
-        info!("starting vigem thread");
-        let handle = std::thread::spawn(move || output::run(einput, devices));
+        info!("starting vigem client");
+        let result = output::run(devices);
         
-        match handle.join() {
-            Ok(Ok(())) => info!("vigem thread exited"),
-            Ok(Err(e)) => info!("vigem thread error: {e}, restarting..."),
-            Err(_) => info!("vigem thread crashed, restarting..."),
+        match result {
+            Ok(()) => info!("vigem client exited"),
+            Err(e) => info!("vigem client error: {e}, restarting..."),
         }
 
         std::thread::sleep(Duration::from_secs(3));

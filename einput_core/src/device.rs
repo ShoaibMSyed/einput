@@ -11,7 +11,7 @@ pub type DeviceWriter = Writer<DeviceId, DeviceInput>;
 
 #[derive(Clone)]
 pub struct Device {
-    info: Arc<DeviceInfo>,
+    info: Arc<Mutex<DeviceInfo>>,
 
     owned: Arc<AtomicBool>,
 
@@ -27,7 +27,7 @@ impl Device {
         let input_writer_raw = Writer::new();
 
         Device {
-            info: Arc::new(info),
+            info: Arc::new(Mutex::new(info)),
 
             owned: Arc::new(AtomicBool::new(false)),
 
@@ -37,15 +37,17 @@ impl Device {
         }
     }
 
-    pub(crate) fn replace(&mut self, info: DeviceInfo) -> Option<DeviceOwner> {
+    pub(crate) fn replace(&self, info: DeviceInfo) -> Option<DeviceOwner> {
         let mut owner = self.create_owner()?;
 
-        if self.info.input == info.input && self.info.output == info.output {
+        let mut self_info = self.info.lock().unwrap();
+
+        if self_info.input == info.input && self_info.output == info.output {
             return Some(owner);
         }
 
-        self.info = Arc::new(info.clone());
-        owner.input = DeviceInput::new(&self.info.input);
+        *self_info = info.clone();
+        owner.input = DeviceInput::new(&self_info.input);
         owner.input_raw = owner.input.clone();
 
         Some(owner)
@@ -56,12 +58,14 @@ impl Device {
             return None;
         }
 
-        let input = DeviceInput::new(&self.info.input);
+        let self_info = self.info.lock().unwrap();
+
+        let input = DeviceInput::new(&self_info.input);
 
         Some(DeviceOwner {
             input_raw: input.clone(),
             input,
-            id: self.info.id().clone(),
+            id: self_info.id().clone(),
             config: self.input_config.clone(),
 
             owned: self.owned.clone(),
@@ -75,8 +79,8 @@ impl Device {
         self.owned.load(Ordering::Relaxed)
     }
 
-    pub fn info(&self) -> &DeviceInfo {
-        &self.info
+    pub fn info(&self) -> DeviceInfo {
+        self.info.lock().unwrap().clone()
     }
 
     pub fn register_reader(&self, reader: &mut DeviceReader) {

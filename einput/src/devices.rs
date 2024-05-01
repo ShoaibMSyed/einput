@@ -70,7 +70,7 @@ impl App {
                                         }
                                     }
 
-                                    ui.add(DevicePreview::new(dev.info(), input));
+                                    ui.add(DevicePreview::new(&dev.info(), input));
                                 });
                             });
                         });

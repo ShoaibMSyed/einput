@@ -68,7 +68,7 @@ struct App {
     last_refresh: Instant,
     tracking: HashMap<DeviceId, Device>,
     reader: DeviceReader,
-    outputs: Vec<OutputData>,
+    outputs: HashMap<String, OutputData>,
 
     configuring: Vec<ConfigureState>,
 
@@ -91,11 +91,31 @@ impl App {
         configs.set_to_last(&einput);
         einput_driver_gc::start(einput.clone());
 
+        let mut outputs: HashMap<String, OutputData> = outputs::all()
+            .into_iter()
+            .map(|(id, out)| (id, OutputData::new(out)))
+            .collect();
+
+        match serde_json::from_str::<'_, Preset>(
+            storage.get_string("preset").as_deref().unwrap_or(""),
+        ) {
+            Ok(preset) => {
+                for (output_id, device_id) in preset.output_map {
+                    let Some(output) = outputs.get_mut(&output_id) else {
+                        continue;
+                    };
+
+                    output.devices = device_id.into_iter().map(|id| einput.get_or_create(id)).collect();
+                    output.output.update(&output.devices);
+                }
+            }
+            Err(e) => {
+                error!("error loading Preset: {e}");
+            }
+        }
+
         App {
-            outputs: outputs::all(einput.clone())
-                .into_iter()
-                .map(OutputData::new)
-                .collect(),
+            outputs,
             einput,
             last_refresh: Instant::now(),
             tracking: HashMap::new(),
@@ -165,17 +185,40 @@ impl eframe::App for App {
         let mut configs = self.configs.lock().unwrap();
         configs.update_last_from_connected(&self.einput);
 
-        let string = match serde_json::to_string::<Configs>(&configs) {
-            Ok(string) => string,
+        match serde_json::to_string::<Configs>(&configs) {
+            Ok(string) => {
+                drop(configs);
+                storage.set_string("configs", string);
+            }
             Err(e) => {
                 error!("error serializing Configs: {e}");
-                return;
             }
         };
 
-        drop(configs);
+        let output_map = self
+            .outputs
+            .iter()
+            .map(|(id, data)| {
+                (
+                    id.clone(),
+                    data.devices
+                        .iter()
+                        .map(|dev| dev.info().id().clone())
+                        .collect(),
+                )
+            })
+            .collect();
 
-        storage.set_string("configs", string);
+        let preset = Preset { output_map };
+
+        match serde_json::to_string::<Preset>(&preset) {
+            Ok(string) => {
+                storage.set_string("preset", string);
+            }
+            Err(e) => {
+                error!("error serializing Preset: {e}");
+            }
+        }
     }
 }
 
@@ -246,15 +289,16 @@ struct Configs {
 
 impl Configs {
     fn update_last(&mut self, id: &DeviceId, einput: &EInput) {
-        let Some(config) = einput.get_input_config(id)
-        else { return };
+        let Some(config) = einput.get_input_config(id) else {
+            return;
+        };
         self.last.insert(id.clone(), config);
     }
 
     fn update_last_from_connected(&mut self, einput: &EInput) {
         for device in einput.devices() {
-            let id = device.info().id();
-            self.update_last(id, einput);
+            let id = device.info().id().clone();
+            self.update_last(&id, einput);
         }
     }
 
@@ -280,7 +324,11 @@ impl FilterableConfig {
     }
 
     fn product(device: &Device, config: &DeviceInputConfig) -> Self {
-        let filter = device.info().product_name().map(|s| ConfigFilter::Product(s.to_owned())).unwrap_or(ConfigFilter::None);
+        let filter = device
+            .info()
+            .product_name()
+            .map(|s| ConfigFilter::Product(s.to_owned()))
+            .unwrap_or(ConfigFilter::None);
         FilterableConfig {
             filter,
             config: config.clone(),
@@ -308,4 +356,9 @@ enum ConfigFilter {
     None,
     Product(String),
     Id(DeviceId),
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+struct Preset {
+    output_map: HashMap<String, Vec<DeviceId>>,
 }

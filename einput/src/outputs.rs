@@ -1,5 +1,7 @@
+use std::collections::HashMap;
+
 use eframe::egui::{self, Context, RichText, ScrollArea};
-use einput_core::{output::Output, EInput};
+use einput_core::output::Output;
 
 use crate::{
     widgets::device_selector::{DeviceSelector, PickState},
@@ -7,12 +9,12 @@ use crate::{
 };
 
 #[allow(unused_variables, unused_mut)]
-pub fn all(einput: EInput) -> Vec<Box<dyn Output>> {
-    let mut outputs = Vec::new();
+pub fn all() -> HashMap<String, Box<dyn Output>> {
+    let mut outputs = HashMap::new();
 
     #[cfg(windows)]
     {
-        outputs.push(Box::new(einput_output_vigem::XboxOutput::new(einput.clone())) as _);
+        outputs.insert("vigem".to_owned(), Box::new(einput_output_vigem::XboxOutput::new()) as _);
     }
 
     outputs
@@ -27,7 +29,7 @@ impl App {
 
             ScrollArea::horizontal().show(ui, |ui| {
                 ui.horizontal(|ui| {
-                    for output in &mut self.outputs {
+                    for output in self.outputs.values_mut() {
                         ui.group(|ui| {
                             ui.vertical(|ui| {
                                 ui.label(RichText::new(output.output.name()).strong());

@@ -1,14 +1,14 @@
 use std::{collections::HashMap, time::Duration};
 
 use anyhow::{Context, Result};
-use einput_core::{device::DeviceReader, EInput};
+use einput_core::device::DeviceReader;
 use einput_device::{input::{buttons::Button, stick::StickId, triggers::TriggerId}, DeviceInput};
 use einput_util::axis::StickAxis;
 use vigem_client::{TargetId, XButtons, XGamepad, Xbox360Wired};
 
 use crate::Devices;
 
-pub fn run(_einput: EInput, devices: Devices) -> Result<()> {
+pub fn run(devices: Devices) -> Result<()> {
     let client = vigem_client::Client::connect()
         .context("error connecting vigem client")?;
 
