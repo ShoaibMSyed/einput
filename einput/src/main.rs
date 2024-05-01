@@ -1,3 +1,5 @@
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
 use std::{
     collections::HashMap,
     sync::{
@@ -8,7 +10,7 @@ use std::{
 };
 
 use eframe::{
-    egui::{Context, Id, ViewportBuilder, ViewportId},
+    egui::{Context, Id, ViewportBuilder, ViewportCommand, ViewportId},
     CreationContext, NativeOptions,
 };
 use einput_core::{
@@ -17,6 +19,7 @@ use einput_core::{
     EInput,
 };
 use einput_device::{input::DeviceInputConfig, DeviceId};
+use flexi_logger::{FileSpec, LogSpecification, Logger};
 use log::error;
 use serde::{Deserialize, Serialize};
 use simple_logger::SimpleLogger;
@@ -29,10 +32,17 @@ mod outputs;
 mod widgets;
 
 fn main() {
-    SimpleLogger::new()
-        .with_level(log::LevelFilter::Debug)
-        .init()
-        .unwrap();
+    if cfg!(debug_assertions) {
+        SimpleLogger::new()
+            .with_level(log::LevelFilter::Debug)
+            .init()
+            .unwrap();
+    } else {
+        Logger::with(LogSpecification::info())
+            .log_to_file(FileSpec::default())
+            .start()
+            .unwrap();
+    }
 
     let native_options = NativeOptions {
         default_theme: eframe::Theme::Dark,
@@ -140,6 +150,7 @@ impl eframe::App for App {
                     if ctx.input(|i| i.viewport().close_requested()) {
                         lock.update_config();
                         close.store(true, Ordering::Relaxed);
+                        ctx.send_viewport_cmd_to(ctx.parent_viewport_id(), ViewportCommand::Focus);
                     }
                 },
             );

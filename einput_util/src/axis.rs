@@ -114,6 +114,8 @@ pub trait StickAxis: Copy + Clone {
 
     fn invert(self) -> Self;
 
+    fn from_f32(value: f32) -> Self;
+
     /// Returns a floating point value between -1.0 and 1.0
     fn to_f32(self) -> f32
     where
@@ -180,6 +182,10 @@ macro_rules! impl_axis {
             Self::MAX - self
         }
 
+        fn from_f32(value: f32) -> Self {
+            (((value + 1.0) / 2.0) * Self::MAX as f32) as _
+        }
+
         fn to_f64(self) -> f64 {
             let half = Self::MAX as f64 / 2.0;
             (self as f64 - half) / half
@@ -200,6 +206,10 @@ macro_rules! impl_axis {
 
         fn invert(self) -> Self {
             (0 as Self).saturating_sub(self)
+        }
+
+        fn from_f32(value: f32) -> Self {
+            (value * Self::MAX as f32) as _
         }
 
         fn to_f64(self) -> f64 {
@@ -363,6 +373,10 @@ impl StickAxis for f32 {
         -self
     }
 
+    fn from_f32(value: f32) -> Self {
+        value
+    }
+
     fn to_f32(self) -> f32 {
         self
     }
@@ -387,6 +401,10 @@ impl StickAxis for f64 {
 
     fn invert(self) -> Self {
         -self
+    }
+
+    fn from_f32(value: f32) -> Self {
+        value as _
     }
 
     fn to_f64(self) -> f64 {

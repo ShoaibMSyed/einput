@@ -15,9 +15,21 @@ const VENDOR_ID: u16 = 0x057E;
 const PRODUCT_ID: u16 = 0x0337;
 
 pub fn start(einput: EInput) {
+    let numbers = Numbers::default();
+
+    match rusb::devices() {
+        Ok(devices) => {
+            for device in devices.iter() {
+                scan(&einput, device, &numbers);
+            }
+        }
+        Err(e) => {
+            warn!("error enumerating usb devices: {e}");
+        }
+    }
+
     match HotplugBuilder::new()
-        .enumerate(true)
-        .register(GlobalContext {}, Box::new(Callback { einput: einput.clone(), numbers: Numbers::default() })) {
+        .register(GlobalContext {}, Box::new(Callback { einput: einput.clone(), numbers })) {
         Ok(ctx) => std::mem::forget(ctx),
         Err(e) => warn!("error creating registering hotplug callback: {e}"),
     }
@@ -106,7 +118,7 @@ fn scan(einput: &EInput, device: UsbDevice, numbers: &Numbers) {
     });
 }
 
-#[derive(Default)]
+#[derive(Clone, Default)]
 struct Numbers {
     inner: Arc<Mutex<NumbersInner>>,
 }

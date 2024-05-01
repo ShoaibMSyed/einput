@@ -12,7 +12,7 @@ pub fn all(einput: EInput) -> Vec<Box<dyn Output>> {
 
     #[cfg(windows)]
     {
-        outputs.push(einput_output_vigem::XboxOutput::new(einput.clone()));
+        outputs.push(Box::new(einput_output_vigem::XboxOutput::new(einput.clone())) as _);
     }
 
     outputs

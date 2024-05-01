@@ -4,7 +4,7 @@ use std::{
     sync::{
         atomic::{AtomicBool, Ordering},
         Arc, Condvar, Mutex,
-    },
+    }, time::Duration,
 };
 
 pub struct Writer<K, V>(Arc<Mutex<InnerWriter<K, V>>>);
@@ -98,6 +98,19 @@ impl<K: Clone, V: Clone> Reader<K, V> {
         drop(guard);
 
         &self.map
+    }
+
+    pub fn wait_timeout(&mut self, dur: Duration) -> Option<&HashMap<K, V>> {
+        let guard = self.inner.value.lock().expect("Reader was poisoned");
+        let (guard, wait) = self.inner.cvar.wait_timeout(guard, dur).expect("Reader was poisoned");
+        self.map.clone_from(&guard);
+        drop(guard);
+
+        if wait.timed_out() {
+            return None;
+        }
+
+        Some(&self.map)
     }
 }
 
