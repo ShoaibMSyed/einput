@@ -28,6 +28,7 @@ impl EInput {
                 let input_config = lock.input_configs.get(&id).cloned().unwrap_or_default();
                 let device = Device::new(DeviceInfo::new(
                     id.as_str().to_owned(),
+                    id.as_str().to_owned(),
                     id.clone(),
                     DeviceKind::Unknown,
                 ), input_config);

@@ -324,13 +324,8 @@ impl FilterableConfig {
     }
 
     fn product(device: &Device, config: &DeviceInputConfig) -> Self {
-        let filter = device
-            .info()
-            .product_name()
-            .map(|s| ConfigFilter::Product(s.to_owned()))
-            .unwrap_or(ConfigFilter::None);
         FilterableConfig {
-            filter,
+            filter: ConfigFilter::Product(device.info().product_name().to_owned()),
             config: config.clone(),
         }
     }
@@ -345,7 +340,7 @@ impl FilterableConfig {
     fn filter(&self, device: &Device) -> bool {
         match &self.filter {
             ConfigFilter::None => true,
-            ConfigFilter::Product(p) => device.info().product_name() == Some(&p),
+            ConfigFilter::Product(p) => device.info().product_name() == p,
             ConfigFilter::Id(id) => device.info().id() == id,
         }
     }

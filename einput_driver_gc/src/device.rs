@@ -119,6 +119,7 @@ impl Controller {
         
         let info = DeviceInfo::new(
             format!("GameCube Controller {}{}", controller + 1, name_suffix),
+            "GameCube Controller".into(),
             id.into(),
             DeviceKind::Gamepad,
         )
@@ -130,8 +131,7 @@ impl Controller {
             })
             .with_output(DeviceOutputInfo {
                 rumble_motors: 1,
-            })
-            .with_product_name("GameCube Controller".into());
+            });
         
         let device = einput.create_device(info)
             .context("device already exists")?;

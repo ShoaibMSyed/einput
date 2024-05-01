@@ -76,27 +76,22 @@ impl Hash for DeviceId {
 pub struct DeviceInfo {
     name: String,
     id: DeviceId,
-    product_name: Option<String>,
+    product_name: String,
     pub kind: DeviceKind,
     pub input: DeviceInputInfo,
     pub output: DeviceOutputInfo,
 }
 
 impl DeviceInfo {
-    pub fn new(name: String, id: DeviceId, kind: DeviceKind) -> Self {
+    pub fn new(name: String, product_name: String, id: DeviceId, kind: DeviceKind) -> Self {
         DeviceInfo {
             name,
             id,
             kind,
-            product_name: None,
+            product_name,
             input: DeviceInputInfo::default(),
             output: DeviceOutputInfo::default(),
         }
-    }
-
-    pub fn with_product_name(mut self, product_name: String) -> Self {
-        self.product_name = Some(product_name);
-        self
     }
 
     pub fn with_input(mut self, input: DeviceInputInfo) -> Self {
@@ -117,8 +112,8 @@ impl DeviceInfo {
         &self.id
     }
 
-    pub fn product_name(&self) -> Option<&str> {
-        self.product_name.as_deref()
+    pub fn product_name(&self) -> &str {
+        &self.product_name
     }
 }
 

@@ -39,13 +39,7 @@ impl Configure {
         ui.horizontal(|ui| {
             ui.label("Save For");
             ui.radio_value(&mut self.tab_save.filter, Filter::Id, "This Device");
-            if let Some(product_name) = self.device.info().product_name() {
-                ui.radio_value(&mut self.tab_save.filter, Filter::Product, format!("Any {product_name}"));
-            } else {
-                if self.tab_save.filter == Filter::Product {
-                    self.tab_save.filter = Filter::Id;
-                }
-            }
+            ui.radio_value(&mut self.tab_save.filter, Filter::Product, format!("Any {}", self.device.info().product_name()));
             ui.radio_value(&mut self.tab_save.filter, Filter::None, "Any Device");
         });
 
