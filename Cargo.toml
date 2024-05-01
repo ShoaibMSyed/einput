@@ -1,0 +1,16 @@
+[workspace]
+resolver = "2"
+members = [
+    "einput",
+    "einput_core",
+    "einput_device",
+    "einput_driver_gc", "einput_output_vigem",
+    "einput_util",
+]
+# default-members = ["einput"]
+
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3

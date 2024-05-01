@@ -1,0 +1,9 @@
+[package]
+name = "einput_device"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+einput_util = { path = "../einput_util" }
+paste = "1.0.14"
+serde = { version = "1.0.198", features = ["derive"] }

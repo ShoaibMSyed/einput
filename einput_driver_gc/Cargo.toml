@@ -1,0 +1,13 @@
+[package]
+name = "einput_driver_gc"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.82"
+bytemuck = { version = "1.15.0", features = ["derive"] }
+einput_core = { path = "../einput_core" }
+einput_device = { path = "../einput_device" }
+einput_util = { path = "../einput_util" }
+log = "0.4.21"
+rusb = "0.9.4"
