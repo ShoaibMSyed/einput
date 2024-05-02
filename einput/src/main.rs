@@ -59,6 +59,7 @@ struct App {
     einput: EInput,
     last_refresh: Instant,
     tracking: HashMap<DeviceId, Device>,
+    tracking_order: Vec<DeviceId>,
     reader: DeviceReader,
     outputs: HashMap<String, OutputData>,
 
@@ -111,6 +112,7 @@ impl App {
             einput,
             last_refresh: Instant::now(),
             tracking: HashMap::new(),
+            tracking_order: Vec::new(),
             reader: DeviceReader::new(),
             configuring: Vec::new(),
             configs: Arc::new(Mutex::new(configs)),
@@ -125,12 +127,16 @@ impl App {
         }
 
         for device in self.einput.devices() {
-            if !self.tracking.contains_key(device.info().id()) {
+            let id = device.info().id().clone();
+            if !self.tracking.contains_key(&id) {
                 self.tracking
-                    .insert(device.info().id().clone(), device.clone());
+                    .insert(id.clone(), device.clone());
+                self.tracking_order.push(id.clone());
                 device.register_reader(&mut self.reader);
             }
         }
+
+        self.tracking_order.sort_by_cached_key(|id| self.tracking.get(id).unwrap().info().name().to_owned());
 
         self.last_refresh = Instant::now();
     }

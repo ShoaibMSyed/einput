@@ -15,7 +15,8 @@ impl App {
             ScrollArea::vertical().show(ui, |ui| {
                 let map = self.reader.current();
 
-                for (id, dev) in &self.tracking {
+                for id in &self.tracking_order {
+                    let dev = self.tracking.get(id).unwrap();
                     if !dev.owned() {
                         continue;
                     }
