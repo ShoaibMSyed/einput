@@ -111,9 +111,9 @@ fn input_to_gamepad(input: &DeviceInput) -> XGamepad {
     let left = input.stick(StickId::Left).copied().unwrap_or_default();
     let right = input.stick(StickId::Right).copied().unwrap_or_default();
     gamepad.thumb_lx = StickAxis::from_f32(left.x);
-    gamepad.thumb_ly = StickAxis::from_f32(left.y);
+    gamepad.thumb_ly = StickAxis::from_f32(left.y.invert());
     gamepad.thumb_rx = StickAxis::from_f32(right.x);
-    gamepad.thumb_ry = StickAxis::from_f32(right.y);
+    gamepad.thumb_ry = StickAxis::from_f32(right.y.invert());
 
     gamepad
 }
