@@ -19,7 +19,6 @@ use einput_core::{
     EInput,
 };
 use einput_device::{input::DeviceInputConfig, DeviceId};
-use flexi_logger::{FileSpec, LogSpecification, Logger};
 use log::error;
 use serde::{Deserialize, Serialize};
 use simple_logger::SimpleLogger;
@@ -32,17 +31,10 @@ mod outputs;
 mod widgets;
 
 fn main() {
-    if cfg!(debug_assertions) {
-        SimpleLogger::new()
+    SimpleLogger::new()
             .with_level(log::LevelFilter::Debug)
             .init()
             .unwrap();
-    } else {
-        Logger::with(LogSpecification::info())
-            .log_to_file(FileSpec::default())
-            .start()
-            .unwrap();
-    }
 
     let native_options = NativeOptions {
         default_theme: eframe::Theme::Dark,

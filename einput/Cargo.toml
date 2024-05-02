@@ -9,7 +9,6 @@ einput_core = { path = "../einput_core" }
 einput_device = { path = "../einput_device" }
 einput_driver_gc = { path = "../einput_driver_gc" }
 einput_util = { path = "../einput_util" }
-flexi_logger = "0.28.0"
 log = "0.4.21"
 serde = { version = "1.0.199", features = ["derive"] }
 serde_json = "1.0.116"
