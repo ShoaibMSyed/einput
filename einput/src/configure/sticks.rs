@@ -1,7 +1,8 @@
 use std::f32::consts::PI;
 
 use eframe::egui::{self, Color32, RichText, Sense, Slider, Stroke, Ui, Vec2};
-use einput_device::input::{config::StickSampler, stick::StickId, StickConfig};
+use einput_config::input::{StickSampler, StickConfig};
+use einput_device::input:: stick::StickId;
 use einput_util::axis::Stick;
 
 use super::Configure;
@@ -26,7 +27,7 @@ impl Configure {
 
                 ui.group(|ui| {
                     ui.vertical(|ui| {
-                        let config = &mut self.input_config.sticks[id as usize];
+                        let config = &mut self.config.input.sticks[id as usize];
 
                         if let Some(calibration) = &mut self.tab_sticks.calibrating {
                             if calibration.id == id {
@@ -79,7 +80,7 @@ impl Configure {
                             if ui.button("Finish Calibration").clicked() {
                                 let samples =
                                     self.tab_sticks.calibrating.take().unwrap().sampler.samples;
-                                self.input_config.sticks[id as usize].samples = Some(samples);
+                                self.config.input.sticks[id as usize].samples = Some(samples);
                                 self.update_config();
                             }
                         } else {

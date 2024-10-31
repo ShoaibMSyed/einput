@@ -7,7 +7,6 @@ use crate::{
     util::{DeviceIndex, DeviceIndexMut, IdOffset, Offset, StructBuilder},
 };
 
-pub use self::config::{DeviceInputConfig, StickConfig, TriggerConfig};
 use self::{
     acceleration::Acceleration,
     buttons::Buttons,
@@ -18,7 +17,6 @@ use self::{
 
 pub mod acceleration;
 pub mod buttons;
-pub mod config;
 pub mod gyroscope;
 pub mod stick;
 pub mod triggers;

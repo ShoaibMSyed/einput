@@ -27,9 +27,9 @@ impl Configure {
 
             if ui.button("Save").clicked() {
                 let fcfg = match self.tab_save.filter {
-                    Filter::None => FilterableConfig::no_filter(&self.input_config),
-                    Filter::Product => FilterableConfig::product(&self.device, &self.input_config),
-                    Filter::Id => FilterableConfig::id(&self.device, &self.input_config),
+                    Filter::None => FilterableConfig::no_filter(&self.config),
+                    Filter::Product => FilterableConfig::product(&self.device, &self.config),
+                    Filter::Id => FilterableConfig::id(&self.device, &self.config),
                 };
                 self.configs.lock().unwrap().all.insert(std::mem::take(&mut self.tab_save.name), fcfg);
                 changed = true;
@@ -59,7 +59,7 @@ impl Configure {
 
                     if button.clicked() {
                         if let Some(fcfg) = self.configs.lock().unwrap().all.get_mut(name) {
-                            fcfg.config = self.input_config.clone();
+                            fcfg.config = self.config.clone();
                         }
                     }
                 }

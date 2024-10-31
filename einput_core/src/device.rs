@@ -3,11 +3,44 @@ use std::sync::{
     Arc, Mutex,
 };
 
-use einput_device::{input::DeviceInputConfig, DeviceId, DeviceInfo, DeviceInput};
+use einput_device::{DeviceId, DeviceInfo, DeviceInput};
 use einput_util::shared::{Reader, Writer};
 
 pub type DeviceReader = Reader<DeviceId, DeviceInput>;
 pub type DeviceWriter = Writer<DeviceId, DeviceInput>;
+
+pub struct DeviceTransformer {
+    func: Box<dyn FnMut(&mut DeviceInput) + Send + Sync>,
+    provider: Arc<dyn Fn() -> Box<dyn FnMut(&mut DeviceInput) + Send + Sync> + Send + Sync + 'static>,
+}
+
+impl DeviceTransformer {
+    pub fn new<F: Fn() -> Box<dyn FnMut(&mut DeviceInput) + Send + Sync> + Send + Sync + 'static>(provider: F) -> Self {
+        let func = provider();
+
+        DeviceTransformer {
+            func,
+            provider: Arc::new(provider),
+        }
+    }
+
+    fn call(&mut self, input: &mut DeviceInput) {
+        (self.func)(input)
+    }
+}
+
+impl Clone for DeviceTransformer {
+    fn clone(&self) -> Self {
+        let func = (self.provider)();
+        Self { func, provider: self.provider.clone() }
+    }
+}
+
+impl Default for DeviceTransformer {
+    fn default() -> Self {
+        Self::new(|| Box::new(|_| {}))
+    }
+}
 
 #[derive(Clone)]
 pub struct Device {
@@ -15,14 +48,15 @@ pub struct Device {
 
     owned: Arc<AtomicBool>,
 
-    pub(crate) input_config: Arc<Mutex<DeviceInputConfig>>,
+    pub(crate) transformer: Arc<Mutex<DeviceTransformer>>,
+
     input_writer: DeviceWriter,
     input_writer_raw: DeviceWriter,
 }
 
 impl Device {
-    pub(crate) fn new(info: DeviceInfo, input_config: DeviceInputConfig) -> Self {
-        let input_config: Arc<Mutex<DeviceInputConfig>> = Arc::new(Mutex::new(input_config));
+    pub(crate) fn new(info: DeviceInfo, transformer: DeviceTransformer) -> Self {
+        let transformer: Arc<Mutex<DeviceTransformer>> = Arc::new(Mutex::new(transformer));
         let input_writer = Writer::new();
         let input_writer_raw = Writer::new();
 
@@ -31,7 +65,8 @@ impl Device {
 
             owned: Arc::new(AtomicBool::new(false)),
 
-            input_config,
+            transformer,
+
             input_writer,
             input_writer_raw,
         }
@@ -66,7 +101,8 @@ impl Device {
             input_raw: input.clone(),
             input,
             id: self_info.id().clone(),
-            config: self.input_config.clone(),
+            
+            transformer: self.transformer.clone(),
 
             owned: self.owned.clone(),
 
@@ -96,8 +132,9 @@ pub struct DeviceOwner {
     input: DeviceInput,
     input_raw: DeviceInput,
     id: DeviceId,
-    config: Arc<Mutex<DeviceInputConfig>>,
-    
+
+    transformer: Arc<Mutex<DeviceTransformer>>,
+
     owned: Arc<AtomicBool>,
 
     writer: Writer<DeviceId, DeviceInput>,
@@ -110,10 +147,11 @@ impl DeviceOwner {
         self.writer_raw.write(&self.id, &self.input_raw);
 
         self.input.clone_from(&self.input_raw);
-        self.config
+        self
+            .transformer
             .lock()
-            .expect("device config poisoned")
-            .apply(&mut self.input);
+            .expect("device transformer poisoned")
+            .call(&mut self.input);
         self.writer.write(&self.id, &self.input);
     }
 }

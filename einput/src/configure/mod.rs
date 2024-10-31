@@ -1,11 +1,12 @@
 use std::sync::{Arc, Mutex};
 
 use eframe::egui::{Align, CentralPanel, Context, Layout, RichText, SidePanel, Ui};
+use einput_config::DeviceConfig;
 use einput_core::{
     device::{Device, DeviceReader},
     EInput,
 };
-use einput_device::{input::DeviceInputConfig, DeviceInput};
+use einput_device::DeviceInput;
 
 use crate::Configs;
 
@@ -24,7 +25,7 @@ pub struct Configure {
     reader: DeviceReader,
     raw_reader: DeviceReader,
 
-    input_config: DeviceInputConfig,
+    config: DeviceConfig,
     configs: Arc<Mutex<Configs>>,
 
     tab: Tab,
@@ -41,7 +42,7 @@ impl Configure {
         let mut raw_reader = DeviceReader::new();
         device.register_reader_raw(&mut raw_reader);
 
-        let input_config = einput.get_input_config(device.info().id()).unwrap_or_default();
+        let config = configs.lock().unwrap().last.get(device.info().id()).cloned().unwrap_or_default();
 
         Configure {
             einput,
@@ -49,7 +50,7 @@ impl Configure {
             reader,
             raw_reader,
 
-            input_config,
+            config,
             configs,
 
             tab: Tab::Overview,
@@ -126,10 +127,7 @@ impl Configure {
     }
 
     pub fn update_config(&self) {
-        self.einput
-            .set_input_config(self.device.info().id().clone(), self.input_config.clone());
-
-        self.configs.lock().unwrap().update_last(self.device.info().id(), &self.einput);
+        self.configs.lock().unwrap().update_device(self.device.info().id().clone(), self.config.clone(), &self.einput);
     }
 }
 

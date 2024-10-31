@@ -24,7 +24,7 @@ impl Configure {
                 }
 
                 if ui.button(name).clicked() {
-                    self.input_config = fcfg.config.clone();
+                    self.config = fcfg.config.clone();
                     self.update_config();
                 }
             }

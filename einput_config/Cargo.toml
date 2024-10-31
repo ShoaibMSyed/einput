@@ -1,0 +1,10 @@
+[package]
+name = "einput_config"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+einput_core = { path = "../einput_core" }
+einput_device = { path = "../einput_device" }
+einput_util = { path = "../einput_util" }
+serde = { version = "1.0.198", features = ["derive"] }

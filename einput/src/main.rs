@@ -13,12 +13,13 @@ use eframe::{
     egui::{Context, Id, ViewportBuilder, ViewportCommand, ViewportId},
     CreationContext, NativeOptions,
 };
+use einput_config::DeviceConfig;
 use einput_core::{
     device::{Device, DeviceReader},
     output::Output,
     EInput,
 };
-use einput_device::{input::DeviceInputConfig, DeviceId};
+use einput_device::DeviceId;
 use log::error;
 use serde::{Deserialize, Serialize};
 use simple_logger::SimpleLogger;
@@ -180,8 +181,7 @@ impl eframe::App for App {
     }
 
     fn save(&mut self, storage: &mut dyn eframe::Storage) {
-        let mut configs = self.configs.lock().unwrap();
-        configs.update_last_from_connected(&self.einput);
+        let configs = self.configs.lock().unwrap();
 
         match serde_json::to_string::<Configs>(&configs) {
             Ok(string) => {
@@ -281,28 +281,19 @@ impl ConfigureState {
 
 #[derive(Clone, Default, Serialize, Deserialize)]
 struct Configs {
-    last: HashMap<DeviceId, DeviceInputConfig>,
+    last: HashMap<DeviceId, DeviceConfig>,
     all: HashMap<String, FilterableConfig>,
 }
 
 impl Configs {
-    fn update_last(&mut self, id: &DeviceId, einput: &EInput) {
-        let Some(config) = einput.get_input_config(id) else {
-            return;
-        };
-        self.last.insert(id.clone(), config);
-    }
-
-    fn update_last_from_connected(&mut self, einput: &EInput) {
-        for device in einput.devices() {
-            let id = device.info().id().clone();
-            self.update_last(&id, einput);
-        }
+    fn update_device(&mut self, id: DeviceId, config: DeviceConfig, einput: &EInput) {
+        einput.set_transformer(id.clone(), config.compile());
+        self.last.insert(id, config);
     }
 
     fn set_to_last(&self, einput: &EInput) {
         for (id, config) in &self.last {
-            einput.set_input_config(id.clone(), config.clone());
+            einput.set_transformer(id.clone(), config.compile());
         }
     }
 }
@@ -310,25 +301,25 @@ impl Configs {
 #[derive(Clone, Serialize, Deserialize)]
 struct FilterableConfig {
     filter: ConfigFilter,
-    config: DeviceInputConfig,
+    config: DeviceConfig,
 }
 
 impl FilterableConfig {
-    fn no_filter(config: &DeviceInputConfig) -> Self {
+    fn no_filter(config: &DeviceConfig) -> Self {
         FilterableConfig {
             filter: ConfigFilter::None,
             config: config.clone(),
         }
     }
 
-    fn product(device: &Device, config: &DeviceInputConfig) -> Self {
+    fn product(device: &Device, config: &DeviceConfig) -> Self {
         FilterableConfig {
             filter: ConfigFilter::Product(device.info().product_name().to_owned()),
             config: config.clone(),
         }
     }
 
-    fn id(device: &Device, config: &DeviceInputConfig) -> Self {
+    fn id(device: &Device, config: &DeviceConfig) -> Self {
         FilterableConfig {
             filter: ConfigFilter::Id(device.info().id().clone()),
             config: config.clone(),

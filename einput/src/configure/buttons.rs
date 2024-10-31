@@ -28,7 +28,7 @@ impl Configure {
                             ComboBox::from_label(format!("{button:?}"))
                                 .selected_text(format!(
                                     "{:?}",
-                                    self.input_config.buttons[button as usize]
+                                    self.config.input.buttons[button as usize]
                                 ))
                                 .show_ui(ui, |ui| {
                                     for button in Button::ALL {
@@ -41,7 +41,7 @@ impl Configure {
                                 });
 
                             if let Some(new) = selected {
-                                self.input_config.buttons[button as usize] = new;
+                                self.config.input.buttons[button as usize] = new;
                                 self.update_config();
                             }
                         });

@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 eframe = { version = "0.27.2", features = ["persistence"] }
+einput_config = { path = "../einput_config" }
 einput_core = { path = "../einput_core" }
 einput_device = { path = "../einput_device" }
 einput_driver_gc = { path = "../einput_driver_gc" }

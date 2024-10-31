@@ -1,17 +1,13 @@
 use std::f32::consts::PI;
 
+use einput_device::input::{
+    DeviceInput,
+    buttons::{Button, Buttons},
+    stick::StickId,
+    triggers::TriggerId,
+};
 use einput_util::axis::{Stick, Trigger};
 use serde::{Deserialize, Serialize};
-
-use crate::{
-    input::{
-        buttons::{Button, Buttons},
-        triggers::TriggerId,
-    },
-    DeviceInput,
-};
-
-use super::stick::StickId;
 
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(default)]
@@ -36,7 +32,7 @@ impl Default for DeviceInputConfig {
 }
 
 impl DeviceInputConfig {
-    pub fn apply(&self, device: &mut DeviceInput) {
+    pub(super) fn apply(&self, device: &mut DeviceInput) {
         if let Some(buttons) = device.buttons_mut() {
             let mut new_buttons = Buttons::default();
 
@@ -49,8 +45,9 @@ impl DeviceInputConfig {
         }
 
         for id in StickId::ALL {
-            let Some(stick) = device.stick_mut(id)
-            else { continue };
+            let Some(stick) = device.stick_mut(id) else {
+                continue;
+            };
 
             *stick = self.sticks[id as usize].apply(*stick);
         }
@@ -165,9 +162,7 @@ pub struct StickSampler {
 
 impl StickSampler {
     pub fn new() -> Self {
-        Self {
-            samples: [0.0; 32],
-        }
+        Self { samples: [0.0; 32] }
     }
 
     pub fn add(&mut self, stick: Stick) {

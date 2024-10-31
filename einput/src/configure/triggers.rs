@@ -1,7 +1,8 @@
 use eframe::egui::{
     Color32, CursorIcon, Rect, Rounding, Sense, Stroke, TextStyle, Ui, Vec2, WidgetText,
 };
-use einput_device::input::{triggers::TriggerId, TriggerConfig};
+use einput_config::input::TriggerConfig;
+use einput_device::input::triggers::TriggerId;
 use einput_util::axis::{Trigger, TriggerAxis};
 
 use super::Configure;
@@ -14,7 +15,7 @@ impl Configure {
 
         ui.horizontal_wrapped(|ui| {
             for id in TriggerId::ALL {
-                let config = &mut self.input_config.triggers[id as usize];
+                let config = &mut self.config.input.triggers[id as usize];
 
                 if draw_trigger(ui, id, *triggers.get(id), config) {
                     self.update_config();

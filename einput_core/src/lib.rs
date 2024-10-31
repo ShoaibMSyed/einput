@@ -3,9 +3,9 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use einput_device::{input::DeviceInputConfig, DeviceId, DeviceInfo, DeviceKind};
+use einput_device::{DeviceId, DeviceInfo, DeviceKind};
 
-use self::device::{Device, DeviceOwner};
+use self::device::{Device, DeviceOwner, DeviceTransformer};
 
 pub mod device;
 pub mod output;
@@ -25,7 +25,7 @@ impl EInput {
         match lock.devices.get(&id) {
             Some(device) => device.clone(),
             None => {
-                let input_config = lock.input_configs.get(&id).cloned().unwrap_or_default();
+                let input_config = lock.transformers.get(&id).cloned().unwrap_or_default();
                 let device = Device::new(DeviceInfo::new(
                     id.as_str().to_owned(),
                     id.as_str().to_owned(),
@@ -46,9 +46,9 @@ impl EInput {
             None => {
                 let id = info.id().clone();
 
-                let input_config = lock.input_configs.get(&id).cloned().unwrap_or_default();
+                let transformer = lock.transformers.get(&id).cloned().unwrap_or_default();
 
-                let device = Device::new(info, input_config);
+                let device = Device::new(info, transformer);
                 let owner = device.create_owner();
                 lock.devices.insert(id, device);
                 owner
@@ -62,34 +62,25 @@ impl EInput {
         devices.into_iter()
     }
 
-    pub fn get_input_config(&self, id: &DeviceId) -> Option<DeviceInputConfig> {
-        self.0
-            .lock()
-            .unwrap()
-            .input_configs
-            .get(id)
-            .cloned()
-    }
-
-    pub fn set_input_config(&self, id: DeviceId, config: DeviceInputConfig) {
+    pub fn set_transformer(&self, id: DeviceId, transformer: DeviceTransformer) {
         let mut lock = self.0.lock().unwrap();
-        lock.input_configs.insert(id.clone(), config.clone());
+        lock.transformers.insert(id.clone(), transformer.clone());
         if let Some(dev) = lock.devices.get(&id) {
-            *dev.input_config.lock().unwrap() = config;
+            *dev.transformer.lock().unwrap() = transformer;
         }
     }
 }
 
 struct Inner {
     devices: HashMap<DeviceId, Device>,
-    input_configs: HashMap<DeviceId, DeviceInputConfig>,
+    transformers: HashMap<DeviceId, DeviceTransformer>,
 }
 
 impl Inner {
     fn new() -> Self {
         Inner {
             devices: HashMap::new(),
-            input_configs: HashMap::new(),
+            transformers: HashMap::new(),
         }
     }
 }

@@ -1,7 +1,7 @@
 [workspace]
 resolver = "2"
 members = [
-    "einput",
+    "einput", "einput_config",
     "einput_core",
     "einput_device",
     "einput_driver_gc", "einput_output_vigem",
