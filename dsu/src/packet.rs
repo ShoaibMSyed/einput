@@ -419,7 +419,7 @@ impl GetControllerInfo {
 #[repr(C)]
 #[derive(Clone, Copy, Debug, FromBytes, IntoBytes, KnownLayout, Immutable)]
 pub struct SendControllerInfo {
-    info: ControllerInfo,
+    pub info: ControllerInfo,
     null: u8,
 }
 
@@ -566,6 +566,10 @@ impl SendControllerData {
             gyro_yaw: 0.0,
             gyro_roll: 0.0,
         }
+    }
+
+    pub fn update_connected(&mut self) {
+        self.connected = (self.info.state != ControllerInfo::STATE_DISCONNECTED) as u8;
     }
 }
 

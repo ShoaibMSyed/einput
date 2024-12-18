@@ -105,6 +105,7 @@ impl Server {
         let mut bytes = Vec::new();
 
         for i in 0..4 {
+            self.controllers[i].update_connected();
             let mut data = self.controllers[i].clone();
 
             for client in self.clients.values_mut() {
