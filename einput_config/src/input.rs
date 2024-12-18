@@ -3,7 +3,6 @@ use std::f32::consts::PI;
 use einput_device::input::{
     DeviceInput,
     buttons::{Button, Buttons},
-    stick::StickId,
     triggers::TriggerId,
 };
 use einput_util::axis::{Stick, Trigger};
@@ -13,7 +12,7 @@ use serde::{Deserialize, Serialize};
 #[serde(default)]
 pub struct DeviceInputConfig {
     pub buttons: [Button; Button::ALL.len()],
-    pub sticks: [StickConfig; StickId::ALL.len()],
+    pub sticks: [StickConfig; 2],
     pub triggers: [TriggerConfig; TriggerId::ALL.len()],
 }
 
@@ -44,12 +43,9 @@ impl DeviceInputConfig {
             *buttons = new_buttons;
         }
 
-        for id in StickId::ALL {
-            let Some(stick) = device.stick_mut(id) else {
-                continue;
-            };
-
-            *stick = self.sticks[id as usize].apply(*stick);
+        if let Some(sticks) = device.sticks_mut() {
+            sticks.left = self.sticks[0].apply(sticks.left);
+            sticks.right = self.sticks[1].apply(sticks.right);
         }
 
         if let Some(triggers) = device.triggers_mut() {

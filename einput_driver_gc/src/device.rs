@@ -3,7 +3,7 @@ use std::time::Duration;
 use anyhow::{anyhow, Context, Result};
 use bytemuck::{Pod, Zeroable};
 use einput_core::{device::DeviceOwner, EInput};
-use einput_device::{input::{buttons::{Button, Buttons}, stick::StickId}, DeviceInfo, DeviceInputInfo, DeviceKind, DeviceOutputInfo};
+use einput_device::{input::buttons::{Button, Buttons}, DeviceInfo, DeviceInputInfo, DeviceKind, DeviceOutputInfo};
 use einput_util::axis::{Stick, StickAxis};
 use log::warn;
 
@@ -125,7 +125,7 @@ impl Controller {
         )
             .with_input(DeviceInputInfo {
                 buttons: Buttons::ABXY | Buttons::DPAD | Buttons::TRIGGERS | Button::R1 | Button::Start,
-                sticks: [StickId::Left, StickId::Right].into(),
+                sticks: true,
                 triggers: true,
                 ..Default::default()
             })
@@ -143,8 +143,9 @@ impl Controller {
         self.device.update(|input| {
             *input.buttons_mut().unwrap() = packet.buttons();
 
-            *input.stick_mut(StickId::Left).unwrap() = Stick::from_xy(packet.lsx, packet.lsy.invert());
-            *input.stick_mut(StickId::Right).unwrap() = Stick::from_xy(packet.rsx, packet.rsy.invert());
+            let sticks = input.sticks_mut().unwrap();
+            sticks.left = Stick::from_xy(packet.lsx, packet.lsy.invert());
+            sticks.right = Stick::from_xy(packet.rsx, packet.rsy.invert());
             
             let triggers = input.triggers_mut().unwrap();
             triggers.l2 = packet.lt.into();

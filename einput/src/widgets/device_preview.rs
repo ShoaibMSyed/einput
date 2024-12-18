@@ -2,7 +2,7 @@ use eframe::egui::{
     Pos2, Rect, Response, Rounding, Sense, Stroke, TextStyle, Vec2, Widget, WidgetText,
 };
 use einput_device::{
-    input::{stick::StickId, triggers::TriggerId},
+    input::{sticks::StickId, triggers::TriggerId},
     DeviceInfo, DeviceInput, DeviceKind,
 };
 use einput_util::axis::TriggerAxis;

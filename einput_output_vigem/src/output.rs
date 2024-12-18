@@ -2,7 +2,7 @@ use std::{collections::HashMap, time::Duration};
 
 use anyhow::{Context, Result};
 use einput_core::device::DeviceReader;
-use einput_device::{input::{buttons::Button, stick::StickId, triggers::TriggerId}, DeviceInput};
+use einput_device::{input::{buttons::Button, sticks::StickId, triggers::TriggerId}, DeviceInput};
 use einput_util::axis::StickAxis;
 use vigem_client::{TargetId, XButtons, XGamepad, Xbox360Wired};
 

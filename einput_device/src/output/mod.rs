@@ -153,7 +153,4 @@ super::component_accessors! {
     multi {
         rumble: Rumble;
     }
-    map {
-
-    }
 }

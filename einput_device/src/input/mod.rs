@@ -4,21 +4,21 @@ use einput_util::axis::{Stick, Trigger};
 
 use crate::{
     info::DeviceInputInfo,
-    util::{DeviceIndex, DeviceIndexMut, IdOffset, Offset, StructBuilder},
+    util::{DeviceIndex, DeviceIndexMut, Offset, StructBuilder},
 };
 
 use self::{
     acceleration::Acceleration,
     buttons::Buttons,
     gyroscope::Gyroscope,
-    stick::StickId,
+    sticks::Sticks,
     triggers::Triggers,
 };
 
 pub mod acceleration;
 pub mod buttons;
 pub mod gyroscope;
-pub mod stick;
+pub mod sticks;
 pub mod triggers;
 
 const ALIGNMENT: usize = {
@@ -54,7 +54,7 @@ struct Header {
     acceleration: Option<Offset<Acceleration>>,
     buttons: Option<Offset<Buttons>>,
     gyroscope: Option<Offset<Gyroscope>>,
-    sticks: Option<IdOffset<Stick, StickId>>,
+    sticks: Option<Offset<Sticks>>,
     triggers: Option<Offset<Triggers>>,
 }
 
@@ -125,10 +125,8 @@ impl Debug for DeviceInput {
             builder.field("gyroscope", gyro);
         }
 
-        for id in StickId::ALL {
-            let Some(stick) = self.get(id) else { continue };
-
-            builder.field(&format!("stick_{id:#?}"), stick);
+        if let Some(sticks) = self.sticks() {
+            builder.field("sticks", sticks);
         }
 
         if let Some(triggers) = self.triggers() {
@@ -148,7 +146,7 @@ impl DeviceInput {
             acceleration: builder.write_maybe(info.acceleration),
             buttons: builder.write_maybe(info.buttons.get_pressed().next().is_some()),
             gyroscope: builder.write_maybe(info.gyroscope),
-            sticks: builder.write_map(&info.sticks),
+            sticks: builder.write_maybe(info.sticks),
             triggers: builder.write_maybe(info.triggers),
         };
 
@@ -215,13 +213,11 @@ super::component_accessors! {
         acceleration: Acceleration;
         buttons: Buttons;
         gyroscope: Gyroscope;
+        sticks: Sticks;
         triggers: Triggers;
     }
     multi {
 
-    }
-    map {
-        stick: Stick[StickId];
     }
 }
 

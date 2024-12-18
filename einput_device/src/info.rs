@@ -1,5 +1,4 @@
 use std::{
-    collections::HashSet,
     fmt::Debug,
     hash::{DefaultHasher, Hash, Hasher},
     ops::Deref,
@@ -8,7 +7,7 @@ use std::{
 
 use serde::{Deserialize, Serialize};
 
-use crate::input::{buttons::Buttons, stick::StickId};
+use crate::input::buttons::Buttons;
 
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(from = "String", into = "String")]
@@ -122,7 +121,7 @@ pub struct DeviceInputInfo {
     pub acceleration: bool,
     pub buttons: Buttons,
     pub gyroscope: bool,
-    pub sticks: HashSet<StickId>,
+    pub sticks: bool,
     pub triggers: bool,
 }
 

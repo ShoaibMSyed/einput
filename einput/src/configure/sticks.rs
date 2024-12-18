@@ -2,7 +2,7 @@ use std::f32::consts::PI;
 
 use eframe::egui::{self, Color32, RichText, Sense, Slider, Stroke, Ui, Vec2};
 use einput_config::input::{StickSampler, StickConfig};
-use einput_device::input:: stick::StickId;
+use einput_device::input:: sticks::StickId;
 use einput_util::axis::Stick;
 
 use super::Configure;
@@ -15,15 +15,15 @@ pub struct SticksTab {
 impl Configure {
     pub fn tab_sticks(&mut self, ui: &mut Ui) {
         ui.horizontal(|ui| {
-            for id in StickId::ALL {
-                let Some(&raw_stick) = self.get_raw_input().and_then(|input| input.stick(id))
-                else {
-                    continue;
-                };
+            let Some(&raw_sticks) = self.get_raw_input().and_then(|input| input.sticks())
+            else { return };
 
-                let Some(&stick) = self.get_input().and_then(|input| input.stick(id)) else {
-                    continue;
-                };
+            let Some(&sticks) = self.get_input().and_then(|input| input.sticks())
+            else { return };
+
+            for id in StickId::ALL {
+                let raw_stick = *raw_sticks.get(id);
+                let stick = *sticks.get(id);
 
                 ui.group(|ui| {
                     ui.vertical(|ui| {

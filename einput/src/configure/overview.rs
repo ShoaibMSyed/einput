@@ -1,5 +1,5 @@
 use eframe::egui::{RichText, ScrollArea, Ui};
-use einput_device::input::{stick::StickId, triggers::TriggerId};
+use einput_device::input::{sticks::StickId, triggers::TriggerId};
 
 use crate::widgets::{
     buttons_input::ButtonsInput, stick_input::StickInput, trigger_input::TriggerInput,
@@ -28,9 +28,7 @@ impl Configure {
 
             if self
                 .get_input()
-                .map(|input| {
-                    input.stick(StickId::Left).is_some() || input.stick(StickId::Right).is_some()
-                })
+                .map(|input| input.sticks().is_some())
                 .unwrap_or(false)
             {
                 if !separate {
@@ -42,8 +40,9 @@ impl Configure {
                 ui.label(RichText::new("Sticks").strong());
 
                 ui.horizontal_wrapped(|ui| {
-                    for id in StickId::ALL {
-                        if let Some(stick) = self.get_input().and_then(|input| input.stick(id)) {
+                    if let Some(sticks) = self.get_input().and_then(|input| input.sticks()) {
+                        for id in StickId::ALL {
+                            let stick = sticks.get(id);
                             ui.add(StickInput::new(*stick, format!("{id:?}")));
                         }
                     }
