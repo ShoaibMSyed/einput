@@ -1,6 +1,7 @@
 [workspace]
 resolver = "2"
 members = [
+    "dsu",
     "einput", "einput_config",
     "einput_core",
     "einput_device",
