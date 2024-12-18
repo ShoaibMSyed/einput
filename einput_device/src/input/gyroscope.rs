@@ -1,3 +1,4 @@
+/// Units are degrees/second
 #[derive(Clone, Copy, Debug, Default)]
 pub struct Gyroscope {
     pub pitch: f32,

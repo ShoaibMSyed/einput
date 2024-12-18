@@ -161,7 +161,7 @@ impl Packet {
         };
 
         if validate {
-            let to_check = header.length as usize + packet.length();
+            let to_check = size_of::<Header>() + packet.length();
 
             const CRC_OFFSET: usize = 8;
     

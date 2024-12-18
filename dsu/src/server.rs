@@ -1,7 +1,7 @@
 use std::{collections::HashMap, io::ErrorKind, net::{SocketAddr, UdpSocket}, time::{Duration, Instant}};
 
 use anyhow::{bail, Result};
-use log::{info, warn};
+use log::{debug, info, warn};
 
 use crate::packet::{ControllerInfo, Get, Packet, Send, SendControllerData, SendControllerInfo, SendProtocolVersionInfo, BUFFER_SIZE};
 
@@ -92,7 +92,7 @@ impl Server {
                 let prev = client.requesting;
                 client.requesting = slots;
                 if client.requesting != prev {
-                    info!("client requested controller data for slots {slots:?}");
+                    debug!("client requested controller data for slots {slots:?}");
                 }
             }
             Packet::Send(_) => bail!("received packet from a server?"),

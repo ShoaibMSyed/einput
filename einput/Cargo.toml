@@ -9,6 +9,7 @@ einput_config = { path = "../einput_config" }
 einput_core = { path = "../einput_core" }
 einput_device = { path = "../einput_device" }
 einput_driver_gc = { path = "../einput_driver_gc" }
+einput_dsu = { path = "../einput_dsu" }
 einput_util = { path = "../einput_util" }
 log = "0.4.21"
 serde = { version = "1.0.199", features = ["derive"] }
