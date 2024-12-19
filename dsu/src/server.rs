@@ -40,7 +40,19 @@ impl Server {
     pub fn remove_old_clients(&mut self) {
         self
             .clients
-            .retain(|_, client| Instant::now() - client.last_request < TIMEOUT);
+            .retain(|_, client| {
+                let now = Instant::now();
+                
+                for last_request in &mut client.requesting {
+                    if let Some(instant) = last_request {
+                        if now - *instant > TIMEOUT {
+                            *last_request = None;
+                        }
+                    }
+                }
+
+                client.requesting.iter().any(|r| r.is_some())
+            });
     }
 
     pub fn receive(&mut self) -> Result<()> {
@@ -58,13 +70,10 @@ impl Server {
             info!("client connected with address {addr}");
             Client {
                 addr,
-                last_request: Instant::now(),
-                requesting: [false; 4],
+                requesting: [None; 4],
                 packet: 0,
             }
         });
-        
-        client.last_request = Instant::now();
 
         match packet {
             Packet::Get(Get::GetProtocolVersionInfo) => {
@@ -89,10 +98,15 @@ impl Server {
             Packet::Get(Get::GetControllerData(packet)) => {
                 let macs = std::array::from_fn(|i| self.controllers[i].info.mac);
                 let slots = packet.slots(macs);
-                let prev = client.requesting;
-                client.requesting = slots;
-                if client.requesting != prev {
-                    debug!("client requested controller data for slots {slots:?}");
+
+                for i in 0..4 {
+                    if slots[i] {
+                        if client.requesting[i].is_none() {
+                            debug!("client requested controller data for slot {i}");
+                        }
+                        
+                        client.requesting[i] = Some(Instant::now());
+                    }
                 }
             }
             Packet::Send(_) => bail!("received packet from a server?"),
@@ -109,7 +123,7 @@ impl Server {
             let mut data = self.controllers[i].clone();
 
             for client in self.clients.values_mut() {
-                if !client.requesting[i] { continue; }
+                if client.requesting[i].is_none() { continue; }
 
                 data.packet = client.packet;
                 Packet::Send(Send::SendControllerData(data.clone())).write(self.id, &mut bytes);
@@ -128,7 +142,6 @@ impl Server {
 
 struct Client {
     addr: SocketAddr,
-    last_request: Instant,
-    requesting: [bool; 4],
+    requesting: [Option<Instant>; 4],
     packet: u32,
 }

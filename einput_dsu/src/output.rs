@@ -179,9 +179,9 @@ impl Thread {
 
         if let Some(sticks) = input.sticks() {
             data.lsx = sticks.left.x.to_u8();
-            data.lsy = sticks.left.y.to_u8();
+            data.lsy = sticks.left.y.invert().to_u8();
             data.rsx = sticks.right.x.to_u8();
-            data.rsy = sticks.right.y.to_u8();
+            data.rsy = sticks.right.y.invert().to_u8();
         }
 
         if let Some(triggers) = input.triggers() {
