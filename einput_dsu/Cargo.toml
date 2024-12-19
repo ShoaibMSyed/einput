@@ -1,0 +1,12 @@
+[package]
+name = "einput_dsu"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1.0.82"
+dsu = { path = "../dsu" }
+einput_core = { path = "../einput_core" }
+einput_device = { path = "../einput_device" }
+einput_util = { path = "../einput_util" }
+log = "0.4.21"

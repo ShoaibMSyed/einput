@@ -12,6 +12,8 @@ use crate::{
 pub fn all() -> HashMap<String, Box<dyn Output>> {
     let mut outputs = HashMap::new();
 
+    outputs.insert("dsu".to_owned(), Box::new(einput_dsu::output::DsuOutput::new()) as _);
+
     #[cfg(windows)]
     {
         outputs.insert("vigem".to_owned(), Box::new(einput_output_vigem::XboxOutput::new()) as _);

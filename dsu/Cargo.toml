@@ -1,0 +1,10 @@
+[package]
+name = "dsu"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1.0.94"
+crc = "3.2.1"
+log = "0.4.22"
+zerocopy = { version = "0.8.13", features = ["derive"] }
